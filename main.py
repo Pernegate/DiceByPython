@@ -2,6 +2,9 @@ import datetime
 import random
 import re
 
+criticalNumMax = 20
+missNumMin = 1
+
 
 def DealParam(rawStrParam, defaultParam):
     if len(rawStrParam) > 0:
@@ -11,27 +14,16 @@ def DealParam(rawStrParam, defaultParam):
 
 
 # 是否重击或是失手，0无，1重击，2失手
-def IsCriticalOrMiss(criticalNumParam, missNumParam, diceResultParam):
-    criticalNumList = criticalNumParam.split('-')
-    missNumList = missNumParam.split('-')
-    criticalNumMin = int(criticalNumList[0])
-    criticalNumMax = int(criticalNumList[0])
-    if len(criticalNumList) > 1:
-        criticalNumMax = int(criticalNumList[1])
-    missNumMin = int(missNumList[0])
-    missNumMax = int(missNumList[0])
-    if len(missNumList) > 1:
-        missNumMax = int(missNumList[1])
-    tmp = criticalNumMin
-    criticalNumMin = max(criticalNumMin, missNumMax)
-    missNumMax = min(tmp, missNumMax)
-    if criticalNumMin <= diceResultParam <= criticalNumMax:
+def IsCriticalOrMiss(criticalNumMinParam, missNumMaxParam, diceResultParam):
+    criticalNumMinTmp = max(criticalNumMinParam, missNumMaxParam+1)
+    missNumMaxTmp = min(criticalNumMinParam-1, missNumMaxParam)
+    if criticalNumMinTmp <= diceResultParam <= criticalNumMax:
         return 1
-    if missNumMin <= diceResultParam <= missNumMax:
+    if missNumMin <= diceResultParam <= missNumMaxTmp:
         return 2
 
 
-rawStr = input("描述，骰子，重击，失手：\n")
+rawStr = input("描述，骰子，重击下限，失手上限：\n")
 res = '[,，]'
 diceRes = '[dD]'
 while (rawStr != 'end') and (rawStr != ''):
@@ -45,12 +37,12 @@ while (rawStr != 'end') and (rawStr != ''):
         rawDiceStr = splitStr[1]
 
     # 重击与失手
-    criticalNum = '20'
-    missNum = '1'
+    criticalNumMin = criticalNumMax
+    missNumMax = missNumMin
     if len(splitStr) > 2:
-        criticalNum = DealParam(splitStr[2], '20')
+        criticalNumMin = int(DealParam(splitStr[2], criticalNumMax))
     if len(splitStr) > 3:
-        missNum = DealParam(splitStr[3], '1')
+        missNumMax = int(DealParam(splitStr[3], missNumMin))
 
     # “#”前掷骰次数
     rollTimes = 1
@@ -93,7 +85,7 @@ while (rawStr != 'end') and (rawStr != ''):
                     diceResult += rollResult
                     # 判断重击或失手
                     if isD20:
-                        isCriticalOrMiss = IsCriticalOrMiss(criticalNum, missNum, rollResult)
+                        isCriticalOrMiss = IsCriticalOrMiss(criticalNumMin, missNumMax, rollResult)
                 if diceNum > 1:
                     diceStrTmp = '(' + diceStrTmp + ')'
             else:
