@@ -15,8 +15,8 @@ def DealParam(rawStrParam, defaultParam):
 
 # 是否重击或是失手，0无，1重击，2失手
 def IsCriticalOrMiss(criticalNumMinParam, missNumMaxParam, diceResultParam):
-    criticalNumMinTmp = max(criticalNumMinParam, missNumMaxParam+1)
-    missNumMaxTmp = min(criticalNumMinParam-1, missNumMaxParam)
+    criticalNumMinTmp = max(criticalNumMinParam, missNumMaxParam + 1)
+    missNumMaxTmp = min(criticalNumMinParam - 1, missNumMaxParam)
     if criticalNumMinTmp <= diceResultParam <= criticalNumMax:
         return 1
     if missNumMin <= diceResultParam <= missNumMaxTmp:
@@ -69,11 +69,14 @@ while (rawStr != 'end') and (rawStr != ''):
         for rawDice in rawDiceList:
             rawDiceSplit = re.split(diceRes, rawDice)
             diceStrTmp = ''
+            # 当前是否为d20
+            is20 = False
             if len(rawDiceSplit) > 1:
                 diceNum = int(DealParam(rawDiceSplit[0], '1'))
                 diceStyle = int(DealParam(rawDiceSplit[1], '20'))
                 if diceNum == 1 and diceStyle == 20:
                     isD20 = True
+                    is20 = True
                 # inRollResults = []
                 # 掷骰
                 for j in range(diceNum):
@@ -84,7 +87,7 @@ while (rawStr != 'end') and (rawStr != ''):
                     diceStrTmp += str(rollResult)
                     diceResult += rollResult
                     # 判断重击或失手
-                    if isD20:
+                    if isD20 and is20:
                         isCriticalOrMiss = IsCriticalOrMiss(criticalNumMin, missNumMax, rollResult)
                 if diceNum > 1:
                     diceStrTmp = '(' + diceStrTmp + ')'
